@@ -13,24 +13,32 @@
 // Sets default values
 ALMADefaultCharacter::ALMADefaultCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+ 	
+	PrimaryActorTick.bCanEverTick = true; //настройка дл€ актора (например, персонажа или объекта в игре), котора€ позвол€ет ему выполн€ть обновлени€ каждый кадр
+	
+	
 	// компонент штатива
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
-	SpringArmComponent->SetupAttachment(GetRootComponent());
+	SpringArmComponent->SetupAttachment(GetRootComponent()); // установка родительского компонента дл€ SpringArmComponent. RootComponent -компонент в иерархии компонентов актора.  ¬се остальные компоненты, такие как Mesh, Camera, SpringArm и другие, могут быть прикреплены к RootComponent или к друг другу, формиру€ иерархию.
 	SpringArmComponent->SetUsingAbsoluteRotation(true); //данное условие не позволит нашей камере поворачиватьс€ в момент поворота персонажа.¬ жанре Top - Down Shooter, камера обычно находитс€ статично над игроком.
-	SpringArmComponent->TargetArmLength = ArmLength;
+	SpringArmComponent->TargetArmLength = ArmLength;// значение зума
 	SpringArmComponent->SetRelativeRotation(FRotator(YRotation, 0.0f, 0.0f)); //структура FRotator хранит аргументы в следующей последовательности : Pitch, Yaw, Roll.“ак как нам необходимо определить значени€ по оси Y, мы устанавливаем Pitch аргумент.
 	SpringArmComponent->bDoCollisionTest = false; // отключаем возвращение камеры при столкновении
 	SpringArmComponent->bEnableCameraLag = true; //сглаживание камеры
 
+	SpringArmComponent->bEnableCameraLag = true; // включает инерцию
+	SpringArmComponent->CameraLagSpeed = 3.0f; // скорость инерции 
+
+	// ”становка начального значени€ зума 
+	CurrentZoomDistance = SpringArmComponent->TargetArmLength;
 
 	// компонент камеры
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
 	CameraComponent->SetupAttachment(SpringArmComponent);
 	CameraComponent->SetFieldOfView(FOV); //отвечает за поле зрени€ камеры
 	CameraComponent->bUsePawnControlRotation = false;// данное условие запрещаем камере вращатьс€ относительно SpringArmComponent.
-
+	
+	
 	//запрет поворат в сторону камеры
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -72,17 +80,37 @@ void ALMADefaultCharacter::Tick(float DeltaTime)
 void ALMADefaultCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
 	PlayerInputComponent->BindAxis("MoveForward", this, &ALMADefaultCharacter::MoveForward); // "MoveForward" в настройка проекта Engine->Input: Axis
 	PlayerInputComponent->BindAxis("MoveRight", this, &ALMADefaultCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("Wheel", this, &ALMADefaultCharacter::MauseWheel); // колесо мыши
 }
 
-void ALMADefaultCharacter::MoveForward(float Value)
+void ALMADefaultCharacter::MoveForward(float AxisValue)
 {
-	AddMovementInput(GetActorForwardVector(), Value);
+	AddMovementInput(GetActorForwardVector(), AxisValue);
 	//AddMovementInput Ц это стандартна€ функци€, котора€ в качестве параметров
 	//берет направление движени€ и величину, на которую будет умножено направление.
 }
-void ALMADefaultCharacter::MoveRight(float Value)
+void ALMADefaultCharacter::MoveRight(float AxisValue)
 {
-	AddMovementInput(GetActorRightVector(), Value);
+	AddMovementInput(GetActorRightVector(), AxisValue);
+}
+void ALMADefaultCharacter::MauseWheel(float AxisValue)
+{
+	CurrentZoomDistance = CurrentZoomDistance - AxisValue * ZoomSpeed; // »зменение зума
+		// ѕроверка на минимальное значение
+		if (CurrentZoomDistance < MinZoomDistance)
+		{
+			CurrentZoomDistance = MinZoomDistance;
+		}
+
+		// ѕроверка на максимальное значение
+		if (CurrentZoomDistance > MaxZoomDistance)
+		{
+			CurrentZoomDistance = MaxZoomDistance;
+		}
+		SpringArmComponent->TargetArmLength = CurrentZoomDistance;
+	
+	
 }
