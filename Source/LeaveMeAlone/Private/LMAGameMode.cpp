@@ -2,4 +2,11 @@
 
 
 #include "LMAGameMode.h"
+#include "PLayer/LMADefaultCharacter.h"
+#include "PLayer/LMAPlayerController.h"
 
+ALMAGameMode::ALMAGameMode()
+{
+	DefaultPawnClass = ALMADefaultCharacter::StaticClass();
+	PlayerControllerClass = ALMAPlayerController::StaticClass();
+}
