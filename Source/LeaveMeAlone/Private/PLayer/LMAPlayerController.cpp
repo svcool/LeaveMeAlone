@@ -1,9 +1,9 @@
 // LeaveMeAlone Game by Netologiya. All Rights Reserved.
 
 #include "Player/LMAPlayerController.h"
-
+//**************************************************************************************************
 ALMAPlayerController::ALMAPlayerController() {}
-
+//**************************************************************************************************
 void ALMAPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
@@ -11,3 +11,10 @@ void ALMAPlayerController::BeginPlay()
 	SetInputMode(FInputModeGameOnly());
 	bShowMouseCursor = false;
 }
+//**************************************************************************************************
+void ALMAPlayerController::BeginSpectatingState()
+{
+	SetControlRotation(FRotator(-75.0f, 0.0f, 0.0f)); // устанавливаем точку наблюдателя
+	Super::BeginSpectatingState();
+}
+//**************************************************************************************************

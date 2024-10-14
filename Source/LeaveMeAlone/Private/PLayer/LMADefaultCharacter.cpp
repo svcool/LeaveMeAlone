@@ -8,8 +8,12 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Components/LMAHealthComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Engine/Engine.h"
 
 
+//**************************************************************************************************
 // Sets default values
 ALMADefaultCharacter::ALMADefaultCharacter()
 {
@@ -24,9 +28,7 @@ ALMADefaultCharacter::ALMADefaultCharacter()
 	SpringArmComponent->TargetArmLength = ArmLength;// значение зума
 	SpringArmComponent->SetRelativeRotation(FRotator(YRotation, 0.0f, 0.0f)); //структура FRotator хранит аргументы в следующей последовательности : Pitch, Yaw, Roll.Так как нам необходимо определить значения по оси Y, мы устанавливаем Pitch аргумент.
 	SpringArmComponent->bDoCollisionTest = false; // отключаем возвращение камеры при столкновении
-	SpringArmComponent->bEnableCameraLag = true; //сглаживание камеры
-
-	SpringArmComponent->bEnableCameraLag = true; // включает инерцию
+	SpringArmComponent->bEnableCameraLag = true; //сглаживание камеры, включает инерцию
 	SpringArmComponent->CameraLagSpeed = 3.0f; // скорость инерции 
 
 	// Установка начального значения зума 
@@ -44,8 +46,11 @@ ALMADefaultCharacter::ALMADefaultCharacter()
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-}
+	//создаем компонент здоровья
+	HealthComponent = CreateDefaultSubobject<ULMAHealthComponent>("HealthComponent");
 
+}
+//**************************************************************************************************
 // Called when the game starts or when spawned
 void ALMADefaultCharacter::BeginPlay()
 {
@@ -55,27 +60,23 @@ void ALMADefaultCharacter::BeginPlay()
 		CurrentCursor = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), CursorMaterial, CursorSize, FVector(0));
 	}
 
-
+	OnHealthChanged(HealthComponent->GetHealth());
+	HealthComponent->OnDeath.AddUObject(this, &ALMADefaultCharacter::OnDeath); //подписка на делегат смерти
+	HealthComponent->OnHealthChanged.AddUObject(this, &ALMADefaultCharacter::OnHealthChanged); //подписка на делегат изменения здоровья
 }
-
+//**************************************************************************************************
 // Called every frame
 void ALMADefaultCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (PC)
+	
+	if (!(HealthComponent->IsDead()))
 	{
-		FHitResult ResultHit;
-		PC->GetHitResultUnderCursor(ECC_GameTraceChannel1, true, ResultHit);
-		float FindRotatorResultYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ResultHit.Location).Yaw;
-		SetActorRotation(FQuat(FRotator(0.0f, FindRotatorResultYaw, 0.0f)));
-		if (CurrentCursor)
-		{
-			CurrentCursor->SetWorldLocation(ResultHit.Location);
-		}
+		RotationPlayerOnCursor();
 	}
-}
 
+}
+//**************************************************************************************************
 // Called to bind functionality to input
 void ALMADefaultCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -85,17 +86,19 @@ void ALMADefaultCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	PlayerInputComponent->BindAxis("MoveRight", this, &ALMADefaultCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Wheel", this, &ALMADefaultCharacter::MauseWheel); // колесо мыши
 }
-
+//**************************************************************************************************
 void ALMADefaultCharacter::MoveForward(float AxisValue)
 {
 	AddMovementInput(GetActorForwardVector(), AxisValue);
 	//AddMovementInput – это стандартная функция, которая в качестве параметров
 	//берет направление движения и величину, на которую будет умножено направление.
 }
+//**************************************************************************************************
 void ALMADefaultCharacter::MoveRight(float AxisValue)
 {
 	AddMovementInput(GetActorRightVector(), AxisValue);
 }
+//**************************************************************************************************
 void ALMADefaultCharacter::MauseWheel(float AxisValue)
 {
 	CurrentZoomDistance = CurrentZoomDistance - AxisValue * ZoomSpeed; // Изменение зума
@@ -111,6 +114,42 @@ void ALMADefaultCharacter::MauseWheel(float AxisValue)
 			CurrentZoomDistance = MaxZoomDistance;
 		}
 		SpringArmComponent->TargetArmLength = CurrentZoomDistance;
-	
-	
 }
+//**************************************************************************************************
+void ALMADefaultCharacter::OnDeath()
+{
+	CurrentCursor->DestroyRenderState_Concurrent();
+
+	PlayAnimMontage(DeathMontage); //вызов проигрывания анимации монтажа
+
+	GetCharacterMovement()->DisableMovement(); //отключаем движение
+
+	SetLifeSpan(5.0f); //унитчтожение объекта через 5 сек
+
+	if (Controller)
+	{
+		Controller->ChangeState(NAME_Spectating);
+	}
+}
+//**************************************************************************************************
+void ALMADefaultCharacter::OnHealthChanged(float NewHealth)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Health = %f"), NewHealth));
+}
+//**************************************************************************************************
+void ALMADefaultCharacter::RotationPlayerOnCursor()
+{
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (PC)
+	{
+		FHitResult ResultHit;
+		PC->GetHitResultUnderCursor(ECC_GameTraceChannel1, true, ResultHit);
+		float FindRotatorResultYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ResultHit.Location).Yaw;
+		SetActorRotation(FQuat(FRotator(0.0f, FindRotatorResultYaw, 0.0f)));
+		if (CurrentCursor)
+		{
+			CurrentCursor->SetWorldLocation(ResultHit.Location);
+		}
+	}
+}
+//**************************************************************************************************

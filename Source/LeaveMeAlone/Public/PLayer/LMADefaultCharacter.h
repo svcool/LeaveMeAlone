@@ -8,6 +8,8 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class ULMAHealthComponent;
+class UAnimMontage; //анимационный монтаж для смерти
 
 UCLASS()
 class LEAVEMEALONE_API ALMADefaultCharacter : public ACharacter
@@ -18,6 +20,9 @@ class LEAVEMEALONE_API ALMADefaultCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	ALMADefaultCharacter();
+
+	UFUNCTION()
+	ULMAHealthComponent* GetHealthComponent() const { return HealthComponent; } //получить текущее здровье 
 
 protected:
 	// Called when the game starts or when spawned
@@ -38,7 +43,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cursor")
 	FVector CursorSize = FVector(20.0f, 40.0f, 40.0f);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components|Health")
+	ULMAHealthComponent* HealthComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+	UAnimMontage* DeathMontage; //указатель на анимацию
 
 	virtual void BeginPlay() override;
 
@@ -74,5 +83,11 @@ private:
 		float CurrentZoomDistance;
 
 		void MauseWheel(float AxisValue);  // Движение колеса мыши.
+
+		//здоровье и смерть
+		void OnDeath();
+		void OnHealthChanged(float NewHealth);
+
+		void RotationPlayerOnCursor();// логика движения персонаж за курсором
 		
 };
