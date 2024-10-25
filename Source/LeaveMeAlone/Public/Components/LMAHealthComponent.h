@@ -28,7 +28,8 @@ public:
 
 	bool AddHealth(float NewHealth); //будет прибавлять нам количество жизней и возвращатьс	значение правды, если здоровье было успешно прибавлено.(pickup)
 	bool IsHealthFull() const; //  вспомогательная функция, которая проверит, полное ли у нас здоровье в 	настоящее время.(pickup)
-
+	
+	UPROPERTY(BlueprintAssignable, BlueprintCallable)
 	FOnDeath OnDeath; //делегат смерти
 	FOnHealthChanged OnHealthChanged;
 	

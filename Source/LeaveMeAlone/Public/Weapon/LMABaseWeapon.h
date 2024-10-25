@@ -40,6 +40,7 @@ public:
 	void NoFire();
 	void ChangeClip();
 bool CanReload() const; // условия корректной перезарядки
+FAmmoWeapon GetCurrentAmmoWeapon() const { return CurrentAmmoWeapon; }
 
 FClipEmpty ClipEmpty; //делегат
 protected:
@@ -63,7 +64,7 @@ protected:
 	void DecrementBullets();
 	bool IsCurrentClipEmpty() const;
 	bool IsClipFull() const;
-		
+	
 public:
 	
 	virtual void Tick(float DeltaTime) override;

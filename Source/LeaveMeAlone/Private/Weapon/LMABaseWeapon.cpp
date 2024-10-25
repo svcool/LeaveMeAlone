@@ -31,7 +31,7 @@ void ALMABaseWeapon::ChangeClip()
 }
 //**********************************************************************************************************
 void ALMABaseWeapon::Shoot() {
-	UE_LOG(LogTemp, Display, TEXT("Pif-Paf"));
+	//UE_LOG(LogTemp, Display, TEXT("Pif-Paf"));
 	const FTransform SocketTransform = WeaponComponent->GetSocketTransform("Muzzle");
 	const FVector TraceStart = SocketTransform.GetLocation();
 	const FVector ShootDirection = SocketTransform.GetRotation().GetForwardVector();
@@ -87,7 +87,7 @@ void ALMABaseWeapon::DecrementBullets()
 	if (!IsCurrentClipEmpty())
 	{
 		CurrentAmmoWeapon.Bullets--;
-		UE_LOG(LogWeapon, Display, TEXT("Bullets = %s"), *FString::FromInt(CurrentAmmoWeapon.Bullets));
+		//UE_LOG(LogWeapon, Display, TEXT("Bullets = %s"), *FString::FromInt(CurrentAmmoWeapon.Bullets));
 	}
 	if	(IsCurrentClipEmpty())
 	{

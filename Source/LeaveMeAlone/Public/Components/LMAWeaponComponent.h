@@ -17,8 +17,13 @@ class LEAVEMEALONE_API ULMAWeaponComponent : public UActorComponent
 public:
 	ULMAWeaponComponent();
 	void Fire();
+	UFUNCTION(BlueprintCallable) 
 	void NoFire();
 	void Reload();
+	UFUNCTION(BlueprintCallable)
+	bool GetCurrentWeaponAmmo(FAmmoWeapon& AmmoWeapon) const;
+	UFUNCTION(BlueprintCallable)
+	ALMABaseWeapon* GetWeaponObject() const;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
@@ -26,6 +31,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	UAnimMontage* ReloadMontage;
+
+	
 
 
 	virtual void BeginPlay() override;

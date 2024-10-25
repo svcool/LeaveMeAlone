@@ -12,6 +12,14 @@ ULMAWeaponComponent::ULMAWeaponComponent()
 
 }
 //**************************************************************************************************************
+ALMABaseWeapon* ULMAWeaponComponent::GetWeaponObject() const
+{
+	if (Weapon){
+		return Weapon;
+	}
+	return nullptr;
+}
+//**************************************************************************************************************
 void ULMAWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -60,6 +68,16 @@ void ULMAWeaponComponent::NoFire()
 void ULMAWeaponComponent::Reload()
 {
 	ClipEmmpty();
+}
+//*****************************************************************************************************
+bool ULMAWeaponComponent::GetCurrentWeaponAmmo(FAmmoWeapon& AmmoWeapon) const
+{
+	if (Weapon)
+	{
+		AmmoWeapon = Weapon->GetCurrentAmmoWeapon();
+		return true;
+	}
+	return false;
 }
 //*****************************************************************************************************
 void ULMAWeaponComponent::InitAnimNotify()

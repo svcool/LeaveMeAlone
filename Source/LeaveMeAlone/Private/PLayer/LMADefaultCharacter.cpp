@@ -72,7 +72,7 @@ void ALMADefaultCharacter::BeginPlay()
 
 	OnHealthChanged(HealthComponent->GetHealth());
 	HealthComponent->OnDeath.AddUObject(this, &ALMADefaultCharacter::OnDeath); //подписка на делегат смерти
-	HealthComponent->OnHealthChanged.AddUObject(this, &ALMADefaultCharacter::OnHealthChanged); //подписка на делегат изменения здоровья
+	//HealthComponent->OnHealthChanged.AddUObject(this, &ALMADefaultCharacter::OnHealthChanged); //подписка на делегат изменения здоровья
 }
 //**************************************************************************************************
 // Called every frame
@@ -143,6 +143,7 @@ void ALMADefaultCharacter::OnDeath()
 	GetCharacterMovement()->DisableMovement(); //отключаем движение
 
 	SetLifeSpan(5.0f); //унитчтожение объекта через 5 сек
+	WeaponComponent->DestroyComponent();
 
 	if (Controller)
 	{
@@ -177,20 +178,20 @@ void ALMADefaultCharacter::BeginSprint() {
 		
 		bIsSprinting = true;
 		GetCharacterMovement()->MaxWalkSpeed = 900.0f;
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("SprintEnd"));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("SprintEnd"));
 	}
 	}
 //**************************************************************************************************
 void ALMADefaultCharacter::EndSprint() {
 	bIsSprinting = false;
 	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("SprintEnd"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("SprintEnd"));
 }
 //**************************************************************************************************
 void ALMADefaultCharacter::ControlStamina() {
 	if (bIsSprinting){
 		Stamina = Stamina - SprintCost;
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Sprint = %f"), Stamina));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("Sprint = %f"), Stamina));
 		if (Stamina <=0){
 			EndSprint();
 		}
@@ -199,7 +200,7 @@ void ALMADefaultCharacter::ControlStamina() {
 	{
 			Stamina = Stamina + StaminaRecoveryRate / 10; // Восстановление выносливости
 			Stamina = FMath ::Min(Stamina, MaxStamina);
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("RecoveryStamina = %f"), Stamina));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, FString::Printf(TEXT("RecoveryStamina = %f"), Stamina));
 		}
 }
 //**************************************************************************************************
