@@ -56,7 +56,7 @@ protected:
 	float MinZoomDistance = 300.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Camera")
-	float MaxZoomDistance = 1400.0f;
+	float MaxZoomDistance = 2500.0f;
 
 	UPROPERTY(EditAnywhere, Category = "Camera")
 	float ZoomSpeed = 100.0f;
@@ -81,10 +81,13 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	bool IsSprinting() const;
 
+	FTimerHandle TimerHandle; // Переменная для хранения таймера	
 	/***********EndSprint***********/
 
 	virtual void BeginPlay() override;
 
+UFUNCTION()
+		void OnDeath();//здоровье и смерть
 
 public:	
 
@@ -106,9 +109,7 @@ private:
 		float CurrentZoomDistance;
 
 		void MauseWheel(float AxisValue);  // Движение колеса мыши.
-
-		//здоровье и смерть
-		void OnDeath();
+			
 		void OnHealthChanged(float NewHealth);
 
 		void RotationPlayerOnCursor();// логика движения персонаж за курсором
@@ -118,5 +119,5 @@ private:
 		void ControlStamina();
 		bool IsMovingForward();
 
-		
+		void DestroyWeaponComponent();
 };

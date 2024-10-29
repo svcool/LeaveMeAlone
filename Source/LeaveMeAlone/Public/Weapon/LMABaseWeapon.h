@@ -8,6 +8,8 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FClipEmpty);
 
 class USkeletalMeshComponent;
+class UNiagaraSystem;
+class USoundWave;
 //*********************************************************************************
 USTRUCT(BlueprintType)
 struct FAmmoWeapon
@@ -54,9 +56,7 @@ protected:
 	FAmmoWeapon AmmoWeapon{30, 0, 0.3f, true};
 
 	FTimerHandle FireTimerHandle;
-
 	
-
 	void Shoot();
 
 	virtual void BeginPlay() override;
@@ -64,7 +64,20 @@ protected:
 	void DecrementBullets();
 	bool IsCurrentClipEmpty() const;
 	bool IsClipFull() const;
-	
+
+	//************Звук************//
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	USoundWave* ShootWave;
+	//************Звук************//
+
+	//************Спецэффекты************//
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	UNiagaraSystem* TraceEffect;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	FString TraceName = "Tracer";
+	void SpawnTrace(const FVector& TraceStart, const FVector& TraceEnd);
+	//************Спецэффекты************//
 public:
 	
 	virtual void Tick(float DeltaTime) override;

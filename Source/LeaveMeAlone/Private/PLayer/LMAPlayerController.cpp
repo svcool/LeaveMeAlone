@@ -8,7 +8,7 @@ void ALMAPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//SetInputMode(FInputModeGameOnly());
+	SetInputMode(FInputModeGameOnly());
 	bShowMouseCursor = false;
 }
 //**************************************************************************************************

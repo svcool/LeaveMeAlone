@@ -20,6 +20,16 @@ ALMABaseWeapon* ULMAWeaponComponent::GetWeaponObject() const
 	return nullptr;
 }
 //**************************************************************************************************************
+void ULMAWeaponComponent::DestroyComponent(bool bPromoteChildren) {
+	if (Weapon)
+	{
+		Weapon->Destroy(); // Уничтожаем объект оружия
+		Weapon = nullptr;	 // Обнуляем указатель
+	}
+		// Вызываем базовый метод для уничтожения компонента
+	Super::DestroyComponent(bPromoteChildren);
+}
+//**************************************************************************************************************
 void ULMAWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -50,7 +60,6 @@ void ULMAWeaponComponent::SpawnWeapon()
 //*****************************************************************************************************
 void ULMAWeaponComponent::Fire() 
 {
-
 	if (Weapon && !AnimReloading)
 	{
 		Weapon->Fire();

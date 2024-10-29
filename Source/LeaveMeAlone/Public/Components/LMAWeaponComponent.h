@@ -25,6 +25,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	ALMABaseWeapon* GetWeaponObject() const;
 
+	// Метод для уничтожения компонента и связанного оружия
+	virtual void DestroyComponent(bool bPromoteChildren = false) override;
+
+
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<ALMABaseWeapon> WeaponClass;
@@ -52,4 +56,5 @@ private:
 
 	UFUNCTION()
 	void ClipEmmpty();
+
 };

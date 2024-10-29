@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "LMAHealthComponent.generated.h"
 
-DECLARE_MULTICAST_DELEGATE(FOnDeath) //делегат смерти персонажа
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeath);				  // делегат смерти персонажа
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float); // для изменения здоровья пикап
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -28,8 +28,7 @@ public:
 
 	bool AddHealth(float NewHealth); //будет прибавлять нам количество жизней и возвращатьс	значение правды, если здоровье было успешно прибавлено.(pickup)
 	bool IsHealthFull() const; //  вспомогательная функция, которая проверит, полное ли у нас здоровье в 	настоящее время.(pickup)
-	
-	UPROPERTY(BlueprintAssignable, BlueprintCallable)
+	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnDeath OnDeath; //делегат смерти
 	FOnHealthChanged OnHealthChanged;
 	

@@ -2,6 +2,11 @@
 #include "Weapon/LMABaseWeapon.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
+//#include "UGameplayStatics"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+
 
 DEFINE_LOG_CATEGORY_STATIC(LogWeapon, All, All)
 // Sets default values
@@ -36,13 +41,23 @@ void ALMABaseWeapon::Shoot() {
 	const FVector TraceStart = SocketTransform.GetLocation();
 	const FVector ShootDirection = SocketTransform.GetRotation().GetForwardVector();
 	const FVector TraceEnd = TraceStart + ShootDirection * TraceDistance;
-	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Black, false, 1.0f, 0, 2.0f);
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Black, false, 1.0f, 0, 2.0f);
+	//UGameplayStatics::PlaySoundAtLocation(GetWorld(), ShootWave, TraceStart);
 	FHitResult HitResult;
 	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility);
+	FVector TracerEnd = TraceEnd;
 	if (HitResult.bBlockingHit)
 	{
-		DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 5.0f, 24, FColor::Red, false, 1.0f);
+		TracerEnd = HitResult.ImpactPoint;
 	}
+
+	//if (HitResult.bBlockingHit)
+	//{
+	//	DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 5.0f, 24, FColor::Red, false, 1.0f);
+	//}
+	SpawnTrace(TraceStart, TracerEnd);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), ShootWave, TraceStart);
+
 	DecrementBullets();
 	//	ѕолучили расположение сокета дула.2. «адали изначальную точку трассировки.3. ѕолучили направление стрельбы,
 	//		в данном случае это координата X нашего сокета.4. ѕолучили точку конца трассировки.5. „тобы нарисовать линию трассировки мы
@@ -107,6 +122,15 @@ bool ALMABaseWeapon::IsClipFull() const
 bool ALMABaseWeapon::CanReload() const
 {
 	return !IsClipFull() && CurrentAmmoWeapon.Bullets < AmmoWeapon.Bullets;
+}
+//**********************************************************************************************************
+void ALMABaseWeapon::SpawnTrace(const FVector& TraceStart, const FVector& TraceEnd)
+{
+	const auto TraceFX = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), TraceEffect, TraceStart);
+	if (TraceFX)
+	{
+		TraceFX->SetNiagaraVariableVec3(TraceName, TraceEnd);
+	}
 }
 //**********************************************************************************************************
 // Called every frame

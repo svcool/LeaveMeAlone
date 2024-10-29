@@ -11,6 +11,7 @@
 #include "Components/LMAHealthComponent.h"
 #include "Components/LMAWeaponComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "TimerManager.h"
 #include "Engine/Engine.h"
 
 
@@ -71,7 +72,7 @@ void ALMADefaultCharacter::BeginPlay()
 	}
 
 	OnHealthChanged(HealthComponent->GetHealth());
-	HealthComponent->OnDeath.AddUObject(this, &ALMADefaultCharacter::OnDeath); //подписка на делегат смерти
+	HealthComponent->OnDeath.AddDynamic(this, &ALMADefaultCharacter::OnDeath); //подписка на делегат смерти
 	//HealthComponent->OnHealthChanged.AddUObject(this, &ALMADefaultCharacter::OnHealthChanged); //подписка на делегат изменения здоровья
 }
 //**************************************************************************************************
@@ -142,9 +143,10 @@ void ALMADefaultCharacter::OnDeath()
 
 	GetCharacterMovement()->DisableMovement(); //отключаем движение
 
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ALMADefaultCharacter::DestroyWeaponComponent, 4.8f, false); // переопределен для уничтожения оружия
 	SetLifeSpan(5.0f); //унитчтожение объекта через 5 сек
-	WeaponComponent->DestroyComponent();
-
+	
+	//WeaponComponent->DestroyComponent();
 	if (Controller)
 	{
 		Controller->ChangeState(NAME_Spectating);
@@ -212,5 +214,15 @@ bool ALMADefaultCharacter::IsMovingForward()
 
 	// Проверяем, движется ли персонаж вперед (по оси Y)
 	return FVector::DotProduct(Velocity, ForwardVector) > 0;
+}
+//**************************************************************************************************
+void ALMADefaultCharacter::DestroyWeaponComponent()
+{
+	if (WeaponComponent)
+	{
+		// Уничтожить компонент оружия
+		WeaponComponent->DestroyComponent();
+	}
+
 }
 //**************************************************************************************************
