@@ -3,6 +3,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/DamageEvents.h"
 //#include "UGameplayStatics"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
@@ -48,9 +49,9 @@ void ALMABaseWeapon::Shoot() {
 	FVector TracerEnd = TraceEnd;
 	if (HitResult.bBlockingHit)
 	{
+		MakeDamage(HitResult);
 		TracerEnd = HitResult.ImpactPoint;
 	}
-
 	//if (HitResult.bBlockingHit)
 	//{
 	//	DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 5.0f, 24, FColor::Red, false, 1.0f);
@@ -132,6 +133,20 @@ void ALMABaseWeapon::SpawnTrace(const FVector& TraceStart, const FVector& TraceE
 		TraceFX->SetNiagaraVariableVec3(TraceName, TraceEnd);
 	}
 }
+//**********************************************************************************************************
+	void ALMABaseWeapon::MakeDamage(const FHitResult& HitResult)
+	{
+		const auto Zombie = HitResult.GetActor();
+		if (!Zombie)
+			return;
+		const auto Pawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+		if (!Pawn)
+			return;
+		const auto Controller = Pawn->GetController<APlayerController>();
+		if (!Controller)
+			return;
+		Zombie->TakeDamage(Damage, FDamageEvent(), Controller, this);
+	}
 //**********************************************************************************************************
 // Called every frame
 void ALMABaseWeapon::Tick(float DeltaTime)

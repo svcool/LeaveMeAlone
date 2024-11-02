@@ -55,6 +55,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
 	FAmmoWeapon AmmoWeapon{30, 0, 0.3f, true};
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon")
+	float Damage = 20;
+
 	FTimerHandle FireTimerHandle;
 	
 	void Shoot();
@@ -78,6 +81,9 @@ protected:
 	FString TraceName = "Tracer";
 	void SpawnTrace(const FVector& TraceStart, const FVector& TraceEnd);
 	//************Спецэффекты************//
+
+	void MakeDamage(const FHitResult& HitResult);// количество урона
+
 public:
 	
 	virtual void Tick(float DeltaTime) override;
